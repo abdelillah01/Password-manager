@@ -1,6 +1,7 @@
-from django.apps import AppConfig
+from django.apps import AppConfig 
 
-
-class TwoFactorConfig(AppConfig):
+class UsersConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'two_factor'
+    name = 'apps.two_factor'
+
+

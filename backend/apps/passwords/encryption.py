@@ -14,7 +14,7 @@ Client-side encryption flow:
 
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.backends import default_backend
 import os
 import base64
@@ -59,7 +59,7 @@ class EncryptionService:
         NOTE: This is for documentation/testing. In production,
         key derivation happens CLIENT-SIDE only.
         """
-        kdf = PBKDF2(
+        kdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
             length=32,
             salt=salt,
