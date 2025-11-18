@@ -1,90 +1,113 @@
+/**
+ * Type definitions for the Password Manager application
+ */
+
 // User types
 export interface User {
-  id: number;
+  id: string;
   email: string;
-  first_name: string;
-  last_name: string;
-  is_2fa_enabled: boolean;
+  username: string;
+  email_verified: boolean;
+  two_factor_enabled: boolean;
+  kdf_salt: string;
+  kdf_iterations: number;
+  master_password_hint?: string;
   created_at: string;
-  updated_at: string;
+  last_password_change: string;
 }
 
+// Password Entry types
+export interface PasswordEntry {
+  id: string;
+  name: string;
+  username: string;
+  website: string;
+  folder: 'personal' | 'work' | 'finance' | 'social' | 'other';
+  encrypted_password: string;
+  encryption_iv: string;
+  encryption_tag: string;
+  encrypted_notes?: string;
+  notes_iv?: string;
+  notes_tag?: string;
+  is_favorite: boolean;
+  created_at: string;
+  updated_at: string;
+  last_accessed?: string;
+}
+
+// Authentication types
 export interface LoginCredentials {
   email: string;
   password: string;
-  totp_code?: string;
 }
 
 export interface RegisterData {
-  first_name: string;
-  last_name: string;
   email: string;
-  password: string;
-  confirm_password: string;
-}
-
-// Password types
-export interface PasswordEntry {
-  id: number;
-  title?: string;        // Make optional since API might not provide it
-  name: string;          // API probably uses this
-  website?: string;
-  username: string;
-  encrypted_password: string;
-  notes?: string;
-  category?: string;
-  folder?: string;
-  is_favorite: boolean;
-  encryption_iv: string;
-  encryption_tag: string;
-  last_accessed?: string;
-  created_at: string;
-  updated_at: string;
-}
-
-// Helper to get display name
-export const getPasswordDisplayName = (entry: PasswordEntry): string => {
-  return entry.title || entry.name || 'Untitled';
-};
-export interface CreatePasswordData {
-  title: string;
-  website?: string;
   username: string;
   password: string;
-  notes?: string;
-  category?: string;
+  password_confirm: string;
+  kdf_salt: string;
+  kdf_iterations: number;
+  master_password_hint?: string;
 }
 
-export interface UpdatePasswordData extends Partial<CreatePasswordData> {
-  id: number;
+export interface LoginResponse {
+  access: string;
+  refresh: string;
+  user: User;
+  requires_2fa: boolean;
 }
 
-export interface DecryptedPassword {
-  id: number;
-  password: string;
+export interface TokenResponse {
+  access: string;
+  refresh: string;
+}
+
+// Encryption types
+export interface EncryptedData {
+  ciphertext: string;
+  iv: string;
+  tag: string;
+}
+
+export interface KdfParams {
+  kdf_salt: string;
+  kdf_iterations: number;
+  master_password_hint?: string;
 }
 
 // 2FA types
-export interface TwoFactorSetup {
+export interface TwoFactorSetupResponse {
+  qr_code: string;
   secret: string;
-  qr_code_url: string;
+  backup_codes: string[];
+  message: string;
 }
 
-export interface TwoFactorVerify {
-  totp_code: string;
+export interface TwoFactorStatus {
+  enabled: boolean;
+  backup_codes_remaining: number;
 }
 
-export interface TwoFactorBackupCode {
-  code: string;
-  used: boolean;
+// Password Generator types
+export interface PasswordGeneratorOptions {
+  length: number;
+  use_symbols: boolean;
+  use_numbers: boolean;
+  use_uppercase: boolean;
+  use_lowercase: boolean;
 }
 
-// API response types
-export interface ApiResponse<T = any> {
-  data?: T;
+export interface PasswordStrength {
+  score: number;
+  feedback: string[];
+}
+
+// API Response types
+export interface ApiError {
+  detail?: string;
   message?: string;
-  error?: string;
-  status: number;
+  [key: string]: unknown;
 }
 
 export interface PaginatedResponse<T> {
@@ -94,45 +117,42 @@ export interface PaginatedResponse<T> {
   results: T[];
 }
 
-// Auth context types
-export interface AuthContextType {
-  user: User | null;
-  isLoading: boolean;
-  login: (credentials: LoginCredentials) => Promise<void>;
-  register: (data: RegisterData) => Promise<void>;
-  logout: () => void;
-  refreshUser: () => Promise<void>;
+// Folder types
+export interface FolderCount {
+  folder: string;
+  count: number;
 }
 
-// Form types
-export interface FormState {
-  isLoading: boolean;
-  error: string | null;
-  success: string | null;
+// Stats types
+export interface PasswordStats {
+  total_passwords: number;
+  favorites: number;
+  recently_accessed: PasswordEntry[];
 }
 
-// Password generator types
-export interface PasswordOptions {
-  length: number;
-  includeUppercase: boolean;
-  includeLowercase: boolean;
-  includeNumbers: boolean;
-  includeSymbols: boolean;
+// Password History types
+export interface PasswordHistory {
+  id: string;
+  encrypted_password: string;
+  encryption_iv: string;
+  encryption_tag: string;
+  changed_at: string;
 }
 
-// Encryption types
-export interface EncryptionKeys {
-  publicKey?: string;
-  privateKey?: string;
-}
-
-// Error types
-export interface ApiError {
-  code: string;
-  message: string;
-  details?: any;
-}
-
-export interface ValidationError {
-  [field: string]: string[];
-}
+// Export all types as a namespace as well for easier importing
+export type {
+  User as UserType,
+  PasswordEntry as PasswordEntryType,
+  LoginCredentials as LoginCredentialsType,
+  RegisterData as RegisterDataType,
+  LoginResponse as LoginResponseType,
+  EncryptedData as EncryptedDataType,
+  KdfParams as KdfParamsType,
+  TwoFactorSetupResponse as TwoFactorSetupResponseType,
+  TwoFactorStatus as TwoFactorStatusType,
+  PasswordGeneratorOptions as PasswordGeneratorOptionsType,
+  PasswordStrength as PasswordStrengthType,
+  FolderCount as FolderCountType,
+  PasswordStats as PasswordStatsType,
+  PasswordHistory as PasswordHistoryType
+};

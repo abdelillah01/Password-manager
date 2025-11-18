@@ -1,8 +1,23 @@
 import axios, { type AxiosError, type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
 import Cookies from 'js-cookie';
+import type {
+  User,
+  PasswordEntry,
+  RegisterData,
+  LoginCredentials,
+  LoginResponse,
+  TwoFactorSetupResponse,
+  TwoFactorStatus,
+  PasswordGeneratorOptions,
+  FolderCount,
+  PasswordStats,
+  KdfParams
+} from '@/types';
+
+// Types
+// export type { User, PasswordEntry, LoginCredentials, RegisterData, LoginResponse } from '@/types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-
 // Create axios instance
 const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -14,15 +29,15 @@ const api: AxiosInstance = axios.create({
 
 // Request interceptor to add auth token
 api.interceptors.request.use(
-  (config) => {
+  (config: InternalAxiosRequestConfig) => {
     const token = Cookies.get('access_token');
-    if (token) {
+    if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     
     // Add CSRF token if available
     const csrfToken = Cookies.get('csrftoken');
-    if (csrfToken) {
+    if (csrfToken && config.headers) {
       config.headers['X-CSRFToken'] = csrfToken;
     }
     
@@ -33,9 +48,30 @@ api.interceptors.request.use(
 
 // Response interceptor to handle token refresh
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('📥 API Response:', {
+      method: response.config.method?.toUpperCase(),
+      url: response.config.url,
+      status: response.status,
+      statusText: response.statusText,
+      hasData: !!response.data,
+      timestamp: new Date().toISOString()
+    });
+    return response;
+  },
   async (error: AxiosError) => {
-    const originalRequest = error.config as any;
+    console.error('❌ API Error:', {
+      message: error.message,
+      code: error.code,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      url: error.config?.url,
+      method: error.config?.method?.toUpperCase(),
+      responseData: error.response?.data,
+      timestamp: new Date().toISOString()
+    });
+    
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
     
     // If 401 and not already retried, try to refresh token
     if (error.response?.status === 401 && !originalRequest._retry) {
@@ -44,17 +80,22 @@ api.interceptors.response.use(
       try {
         const refreshToken = Cookies.get('refresh_token');
         if (refreshToken) {
+          console.log('🔄 Attempting token refresh...');
           const response = await axios.post(`${API_BASE_URL}/api/auth/token/refresh/`, {
             refresh: refreshToken
           });
           
           const { access } = response.data;
           Cookies.set('access_token', access, { secure: true, sameSite: 'strict' });
+          console.log('✅ Token refreshed successfully');
           
-          originalRequest.headers.Authorization = `Bearer ${access}`;
+          if (originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${access}`;
+          }
           return api(originalRequest);
         }
       } catch (refreshError) {
+        console.error('❌ Token refresh failed:', refreshError);
         // Refresh failed, clear tokens and redirect to login
         Cookies.remove('access_token');
         Cookies.remove('refresh_token');
@@ -124,28 +165,57 @@ export interface LoginResponse {
 // Auth API
 export const authAPI = {
   async register(data: RegisterData) {
-    const response = await api.post<{
-      user: User;
-      tokens: { access: string; refresh: string };
-      message: string;
-    }>('/api/auth/register/', data);
-    
-    // Store tokens
-    Cookies.set('access_token', response.data.tokens.access, { 
-      secure: true, 
-      sameSite: 'strict',
-      expires: 0.01 // 15 minutes
-    });
-    Cookies.set('refresh_token', response.data.tokens.refresh, { 
-      secure: true, 
-      sameSite: 'strict',
-      expires: 7 // 7 days
+    console.log('🔐 Starting registration...', {
+      email: data.email,
+      username: data.username,
+      hasSalt: !!data.kdf_salt,
+      saltLength: data.kdf_salt?.length,
+      iterations: data.kdf_iterations,
+      timestamp: new Date().toISOString()
     });
     
-    return response.data;
+    try {
+      const response = await api.post<{
+        user: User;
+        tokens: { access: string; refresh: string };
+        message: string;
+      }>('/api/auth/register/', data);
+      
+      console.log('✅ Registration successful:', {
+        userId: response.data.user.id,
+        email: response.data.user.email,
+        hasTokens: !!(response.data.tokens.access && response.data.tokens.refresh),
+        timestamp: new Date().toISOString()
+      });
+      
+      // Store tokens
+      Cookies.set('access_token', response.data.tokens.access, { 
+        secure: true, 
+        sameSite: 'strict',
+        expires: 0.01 // 15 minutes
+      });
+      Cookies.set('refresh_token', response.data.tokens.refresh, { 
+        secure: true, 
+        sameSite: 'strict',
+        expires: 7 // 7 days
+      });
+      
+      console.log('✅ Tokens stored in cookies');
+      
+      return response.data;
+    } catch (error: any) {
+      console.error('❌ Registration failed:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        message: error.message,
+        timestamp: new Date().toISOString()
+      });
+      throw error;
+    }
   },
   
-  async login(data: LoginData) {
+  async login(data: LoginCredentials) {
     const response = await api.post<LoginResponse>('/api/auth/login/', data);
     
     // Store tokens
@@ -176,8 +246,8 @@ export const authAPI = {
     return response.data;
   },
   
-  async getKdfParams(): Promise<{ kdf_salt: string; kdf_iterations: number; master_password_hint: string }> {
-    const response = await api.get('/api/auth/kdf-params/');
+  async getKdfParams(): Promise<KdfParams> {
+    const response = await api.get<KdfParams>('/api/auth/kdf-params/');
     return response.data;
   },
   
@@ -236,37 +306,26 @@ export const passwordAPI = {
     return response.data;
   },
   
-  async generate(options: {
-    length: number;
-    use_symbols: boolean;
-    use_numbers: boolean;
-    use_uppercase: boolean;
-    use_lowercase: boolean;
-  }) {
+  async generate(options: PasswordGeneratorOptions) {
     const response = await api.post<{ password: string }>('/api/passwords/generate/', options);
     return response.data;
   },
   
-  async getStats() {
-    const response = await api.get('/api/passwords/stats/');
+  async getStats(): Promise<PasswordStats> {
+    const response = await api.get<PasswordStats>('/api/passwords/stats/');
     return response.data;
   },
   
-  async getFolders() {
-    const response = await api.get<Array<{ folder: string; count: number }>>('/api/passwords/folders/');
+  async getFolders(): Promise<FolderCount[]> {
+    const response = await api.get<FolderCount[]>('/api/passwords/folders/');
     return response.data;
   }
 };
 
 // 2FA API
 export const twoFactorAPI = {
-  async setup() {
-    const response = await api.post<{
-      qr_code: string;
-      secret: string;
-      backup_codes: string[];
-      message: string;
-    }>('/api/2fa/setup/');
+  async setup(): Promise<TwoFactorSetupResponse> {
+    const response = await api.post<TwoFactorSetupResponse>('/api/2fa/setup/');
     return response.data;
   },
   
@@ -288,11 +347,8 @@ export const twoFactorAPI = {
     return response.data;
   },
   
-  async getStatus() {
-    const response = await api.get<{
-      enabled: boolean;
-      backup_codes_remaining: number;
-    }>('/api/2fa/status/');
+  async getStatus(): Promise<TwoFactorStatus> {
+    const response = await api.get<TwoFactorStatus>('/api/2fa/status/');
     return response.data;
   }
 };

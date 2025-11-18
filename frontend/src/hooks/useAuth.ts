@@ -1,11 +1,12 @@
 import { create } from 'zustand';
-import { authAPI, twoFactorAPI, type User } from '../lib/api';
+import { useEffect, useRef } from 'react';
+import { authAPI, twoFactorAPI, type User } from '@/lib/api';
 import {
   keyStore,
   deriveKey,
   generateSalt,
   arrayBufferToBase64
-} from '../lib/encryption';
+} from '@/lib/encryption';
 import Cookies from 'js-cookie';
 
 /**
@@ -29,6 +30,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   requires2FA: boolean;
+  hasCheckedAuth: boolean;
 
   login: (email: string, password: string) => Promise<{ requires2FA: boolean }>;
   register: (data: {
@@ -50,6 +52,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isAuthenticated: false,
   isLoading: false,
   requires2FA: false,
+  hasCheckedAuth: false,
 
   login: async (email, password) => {
     set({ isLoading: true });
@@ -60,7 +63,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         set({
           user: response.user,
           requires2FA: true,
-          isLoading: false
+          isLoading: false,
+          hasCheckedAuth: true
         });
         return { requires2FA: true };
       }
@@ -77,12 +81,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         user: response.user,
         isAuthenticated: true,
         requires2FA: false,
-        isLoading: false
+        isLoading: false,
+        hasCheckedAuth: true
       });
 
       return { requires2FA: false };
     } catch (error: any) {
-      set({ isLoading: false });
+      set({ isLoading: false, hasCheckedAuth: true });
       throw new Error(error.response?.data?.detail || 'Login failed');
     }
   },
@@ -111,10 +116,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({
         user: response.user,
         isAuthenticated: true,
-        isLoading: false
+        isLoading: false,
+        hasCheckedAuth: true
       });
     } catch (error: any) {
-      set({ isLoading: false });
+      set({ isLoading: false, hasCheckedAuth: true });
       const msg =
         error.response?.data?.email?.[0] ||
         error.response?.data?.password?.[0] ||
@@ -128,33 +134,57 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       await authAPI.logout();
     } catch (_) {}
     keyStore.clearKey();
-    set({ user: null, isAuthenticated: false, requires2FA: false });
+    set({ 
+      user: null, 
+      isAuthenticated: false, 
+      requires2FA: false,
+      hasCheckedAuth: true 
+    });
   },
 
   verify2FA: async (token: string, backupCode = false) => {
     set({ isLoading: true });
     try {
-      // ✅ Correct API call
       await twoFactorAPI.verifyLogin(token, backupCode);
-
-      set({ isAuthenticated: true, requires2FA: false, isLoading: false });
+      set({ 
+        isAuthenticated: true, 
+        requires2FA: false, 
+        isLoading: false,
+        hasCheckedAuth: true 
+      });
     } catch (error: any) {
-      set({ isLoading: false });
+      set({ isLoading: false, hasCheckedAuth: true });
       throw new Error(error.response?.data?.error || 'Invalid 2FA code');
     }
   },
 
   loadUser: async () => {
+    set({ isLoading: true });
     const token = Cookies.get('access_token');
     if (!token) {
-      set({ isAuthenticated: false, user: null });
+      set({ 
+        isAuthenticated: false, 
+        user: null, 
+        isLoading: false,
+        hasCheckedAuth: true 
+      });
       return;
     }
     try {
       const user = await authAPI.getCurrentUser();
-      set({ user, isAuthenticated: true });
+      set({ 
+        user, 
+        isAuthenticated: true, 
+        isLoading: false,
+        hasCheckedAuth: true 
+      });
     } catch (_) {
-      set({ isAuthenticated: false, user: null });
+      set({ 
+        isAuthenticated: false, 
+        user: null, 
+        isLoading: false,
+        hasCheckedAuth: true 
+      });
       Cookies.remove('access_token');
       Cookies.remove('refresh_token');
     }
@@ -162,18 +192,33 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   clearAuth: () => {
     keyStore.clearKey();
-    set({ user: null, isAuthenticated: false, requires2FA: false });
+    set({ 
+      user: null, 
+      isAuthenticated: false, 
+      requires2FA: false,
+      hasCheckedAuth: true 
+    });
   }
 }));
 
 export function useAuth() {
   const store = useAuthStore();
+  const hasLoadedRef = useRef(false);
+
+  // Auto-load user on mount - ONLY ONCE
+  useEffect(() => {
+    if (!hasLoadedRef.current && !store.hasCheckedAuth && !store.isLoading) {
+      hasLoadedRef.current = true;
+      store.loadUser();
+    }
+  }, []); // Empty deps - only run once
 
   return {
     user: store.user,
     isAuthenticated: store.isAuthenticated,
     isLoading: store.isLoading,
     requires2FA: store.requires2FA,
+    hasCheckedAuth: store.hasCheckedAuth,
     login: store.login,
     register: store.register,
     logout: store.logout,
