@@ -4,8 +4,13 @@ Django settings for password manager backend
 import os
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv
+from dotenv import load_dotenv
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv(dotenv_path=BASE_DIR / ".env")
 
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-secret-key-change-in-production')
 
@@ -26,7 +31,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
-    'django_ratelimit',
+    #'django_ratelimit',
     
     # Local apps
     'apps.users',
