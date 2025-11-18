@@ -1,0 +1,31 @@
+# Core Django and REST API
+Django>=5.0
+djangorestframework>=3.15.0
+django-cors-headers>=4.3.0
+djangorestframework-simplejwt>=5.3.0
+
+# Security & Cryptography
+cryptography>=43.0.0
+pyotp>=2.9.0
+qrcode>=7.4.2
+
+# Database & Environment
+psycopg2-binary>=2.9.9        # if using PostgreSQL
+python-dotenv>=1.0.1
+
+# Password hashing and token tools
+bcrypt>=4.1.2
+
+# Image & QR processing
+Pillow>=10.0.0
+
+# Date & time utilities
+pytz>=2024.1
+
+# Development & Testing
+pytest>=8.0.0
+pytest-django>=4.8.0
+requests>=2.32.3
+
+
+cryptography>=43.0.0

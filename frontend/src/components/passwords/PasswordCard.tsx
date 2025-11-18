@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { PasswordEntry } from '@/types';
+import type { PasswordEntry } from '../../types';
 import { Eye, EyeOff, Copy, Edit, Trash2, Star, ExternalLink } from 'lucide-react';
 import { decrypt, keyStore, type EncryptedData } from '@/lib/encryption';
 import { passwordAPI } from '@/lib/api';
@@ -41,7 +41,7 @@ export default function PasswordCard({ entry, onEdit, onDelete, onToggleFavorite
       setDecryptedPassword(plaintext);
 
       // Mark as accessed
-      await passwordAPI.markAccessed(entry.id);
+      await passwordAPI.markAccessed(entry.id.toString());
     } catch (error) {
       console.error('Decryption failed:', error);
       toast.error('Failed to decrypt password. Session may have expired.');
@@ -75,16 +75,17 @@ export default function PasswordCard({ entry, onEdit, onDelete, onToggleFavorite
     }
   };
 
-  const getFolderColor = (folder: string) => {
-    const colors: Record<string, string> = {
-      personal: 'bg-blue-100 text-blue-700',
-      work: 'bg-purple-100 text-purple-700',
-      finance: 'bg-green-100 text-green-700',
-      social: 'bg-pink-100 text-pink-700',
-      other: 'bg-gray-100 text-gray-700',
-    };
-    return colors[folder] || colors.other;
+  const getFolderColor = (folder: string | undefined) => {
+  const folderName = folder || 'other';
+  const colors: Record<string, string> = {
+    personal: 'bg-blue-100 text-blue-700',
+    work: 'bg-purple-100 text-purple-700',
+    finance: 'bg-green-100 text-green-700',
+    social: 'bg-pink-100 text-pink-700',
+    other: 'bg-gray-100 text-gray-700',
   };
+  return colors[folderName] || colors.other;
+};
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-5 hover:shadow-lg transition-all duration-200 fade-in">
@@ -95,9 +96,9 @@ export default function PasswordCard({ entry, onEdit, onDelete, onToggleFavorite
             {entry.is_favorite && (
               <Star className="w-5 h-5 text-yellow-500 fill-current" />
             )}
-            <span className={`px-2 py-1 text-xs rounded-full font-medium ${getFolderColor(entry.folder)}`}>
-              {entry.folder}
-            </span>
+            <span className={`px-2 py-1 text-xs rounded-full font-medium ${getFolderColor(entry.folder || 'other')}`}>
+  {entry.folder || 'Uncategorized'}
+</span>
           </div>
 
           {entry.username && (
