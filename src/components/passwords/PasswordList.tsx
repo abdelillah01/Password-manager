@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { passwordAPI } from '@/lib/api';
-import type { PasswordEntry } from '@/types';
+import type { PasswordEntry } from '@/lib/api';
 import PasswordCard from './PasswordCard';
 import { Lock, Plus } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -38,7 +38,8 @@ export default function PasswordList({
     try {
       setIsLoading(true);
       const data = await passwordAPI.list();
-      setPasswords(data);
+      // FIX 1: Handle potential undefined data
+      setPasswords(data || []);
     } catch (error) {
       console.error('Failed to load passwords:', error);
       toast.error('Failed to load passwords');
@@ -50,18 +51,18 @@ export default function PasswordList({
   const filterPasswords = () => {
     let filtered = passwords;
 
-    // Filter by folder
+    // Filter by folder - FIX 3: Consistent type comparison
     if (selectedFolder !== 'all') {
-      filtered = filtered.filter(p => p.folder === selectedFolder);
+      filtered = filtered.filter(p => p.folder?.toString() === selectedFolder?.toString());
     }
 
-    // Filter by search query
+    // Filter by search query - FIX 2: Safe website access
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(p =>
         p.name.toLowerCase().includes(query) ||
         p.username.toLowerCase().includes(query) ||
-        p.website.toLowerCase().includes(query)
+        p.website?.toLowerCase().includes(query)
       );
     }
 
@@ -75,7 +76,7 @@ export default function PasswordList({
 
     try {
       await passwordAPI.delete(id);
-      setPasswords(prev => prev.filter(p => p.id !== id));
+      setPasswords(prev => prev.filter(p => p.id.toString() !== id));
       toast.success('Password deleted successfully');
     } catch (error) {
       console.error('Failed to delete password:', error);
@@ -87,7 +88,7 @@ export default function PasswordList({
     try {
       const result = await passwordAPI.toggleFavorite(id);
       setPasswords(prev =>
-        prev.map(p => p.id === id ? { ...p, is_favorite: result.is_favorite } : p)
+        prev.map(p => p.id.toString() === id ? { ...p, is_favorite: result.is_favorite } : p)
       );
     } catch (error) {
       console.error('Failed to toggle favorite:', error);
@@ -141,15 +142,21 @@ export default function PasswordList({
 
   return (
     <div className="grid gap-4 fade-in">
-      {filteredPasswords.map(entry => (
-        <PasswordCard
-          key={entry.id}
-          entry={entry}
-          onEdit={() => onEditClick(entry)}
-          onDelete={() => handleDelete(entry.id)}
-          onToggleFavorite={() => handleToggleFavorite(entry.id)}
-        />
-      ))}
+      {filteredPasswords.map(entry => {
+        // create a version of the entry with a numeric id to satisfy PasswordCard's expected type
+        const cardEntry = { ...entry, id: Number(entry.id) } as any;
+
+        return (
+          <PasswordCard
+            key={entry.id}
+            entry={cardEntry}
+            onEdit={() => onEditClick(entry)}
+            // keep using the original string id for API calls
+            onDelete={() => handleDelete(entry.id.toString())}
+            onToggleFavorite={() => handleToggleFavorite(entry.id.toString())}
+          />
+        );
+      })}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { X, Plus, AlertCircle } from 'lucide-react';
 import { passwordAPI } from '@/lib/api';
 import { encrypt, keyStore } from '@/lib/encryption';
 import PasswordGenerator from '@/components/ui/PasswordGenerator';
+
 import PasswordStrengthMeter from '@/components/ui/PasswordStrengthMeter';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
@@ -65,6 +66,8 @@ export default function AddPasswordModal({ isOpen, onClose, onSuccess }: AddPass
         username: formData.username,
         website: formData.website,
         folder: formData.folder,
+        // required by API/PasswordEntry type
+        is_favorite: false,
         encrypted_password: encryptedPassword.ciphertext,
         encryption_iv: encryptedPassword.iv,
         encryption_tag: encryptedPassword.tag,
@@ -133,7 +136,7 @@ export default function AddPasswordModal({ isOpen, onClose, onSuccess }: AddPass
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
           {error && (
             <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start">
-              <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
+              <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 mr-3 shrink-0" />
               <p className="text-sm text-red-800">{error}</p>
             </div>
           )}
@@ -275,7 +278,7 @@ export default function AddPasswordModal({ isOpen, onClose, onSuccess }: AddPass
 
       {/* Password Generator Modal */}
       {showGenerator && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-50">
+        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-xl p-6 w-full max-w-md m-4">
             <PasswordGenerator
               onGenerate={handleGeneratedPassword}
