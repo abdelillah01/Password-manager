@@ -6,11 +6,20 @@ from rest_framework.throttling import AnonRateThrottle
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
 from django.db.models import Q, Count
-from ratelimit.decorators import ratelimit # type: ignore
+from django_ratelimit.decorators import ratelimit
+# from django.views.decorators.csrf import csrf_exempt
+
+
 
 from django.utils.decorators import method_decorator
 from .models import PasswordItem
 from .serializers import RegisterSerializer, PasswordItemSerializer, FolderSerializer
+from rest_framework.authentication import SessionAuthentication
+
+ #class CsrfExemptSessionAuthentication(SessionAuthentication):
+     #def enforce_csrf(self, request):
+         #return  # Skip CSRF check
+
 
 class LoginThrottle(AnonRateThrottle):
     scope = 'login'
