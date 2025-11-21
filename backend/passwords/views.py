@@ -6,7 +6,8 @@ from rest_framework.throttling import AnonRateThrottle
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
 from django.db.models import Q, Count
-from django_ratelimit.decorators import ratelimit
+from ratelimit.decorators import ratelimit # type: ignore
+
 from django.utils.decorators import method_decorator
 from .models import PasswordItem
 from .serializers import RegisterSerializer, PasswordItemSerializer, FolderSerializer
