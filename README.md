@@ -1,21 +1,53 @@
-Secure Password Manager
-A full-stack password manager with zero-knowledge architecture built with Django REST Framework and Next.js. Your passwords are encrypted client-side before ever reaching the server - we can't see them, and neither can anyone else.
+#  Zero-Knowledge Password Manager
 
-Features
-- Core Security
+![Django](https://img.shields.io/badge/Django-5.1-092E20?style=for-the-badge&logo=django&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-14-000000?style=for-the-badge&logo=next.js&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.13-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+![Security](https://img.shields.io/badge/Security-AES--256--GCM-red?style=for-the-badge)
 
-Zero-Knowledge Architecture - Server never sees unencrypted passwords
-Client-Side Encryption - AES-256-GCM encryption in the browser
-Master Password - Never stored or transmitted
-Argon2 Password Hashing - Industry-leading password security
+A production-ready, zero-knowledge password manager where **the server never sees your decrypted passwords**. Built with modern web technologies and cryptographic best practices, this application ensures your sensitive data remains private through client-side encryption.
 
-Rate Limiting - Prevents brute force attacks
+---
 
-- Password Management
+##  Key Features
 
-CRUD Operations - Create, read, update, delete passwords
-Folders & Organization - Categorize passwords (Personal, Work, Finance, etc.)
-Search & Filter - Quickly find passwords
-Favorites - Mark important passwords
-Password History - Track password changes
-Password Generator - Create strong, random passwords
+-  **Zero-Knowledge Architecture** - Server only stores encrypted data
+-  **Client-Side AES-256-GCM Encryption** - All encryption happens in your browser
+-  **Argon2id Password Hashing** - Industry-standard password security
+-  **Master Password Never Stored** - Even we can't access your passwords
+-  **Folder Organization** - Group passwords by categories
+-  **Favorites** - Quick access to frequently used passwords
+-  **Search & Filter** - Find passwords instantly
+-  **Auto-Lock** - Automatic logout after 10 minutes of inactivity
+-  **RESTful API** - Clean, documented backend architecture
+-  **Modern UI** - Built with Tailwind CSS for a clean, responsive interface
+-  **Rate Limiting** - Protection against brute-force attacks
+-  **CORS-Enabled** - Secure cross-origin resource sharing
+
+---
+
+##  Tech Stack
+
+### Backend
+- **Framework:** Django 5.1 + Django REST Framework 3.15
+- **Database:** SQLite (development) / PostgreSQL (production-ready)
+- **Password Hashing:** Argon2id via `django-argon2`
+- **Authentication:** Session-based with CSRF exemption for API
+- **Rate Limiting:** Built-in DRF throttling
+- **CORS:** `django-cors-headers`
+
+### Frontend
+- **Framework:** Next.js 14 (App Router)
+- **Language:** JavaScript (ES6+)
+- **Styling:** Tailwind CSS
+- **State Management:** Zustand
+- **HTTP Client:** Axios
+- **Encryption:** Web Crypto API (browser-native)
+
+### Cryptography
+- **Encryption Algorithm:** AES-256-GCM
+- **Key Derivation:** PBKDF2 (100,000 iterations, SHA-256)
+- **Password Hashing:** Argon2id
+- **IV Generation:** Cryptographically secure random values
