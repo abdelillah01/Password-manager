@@ -61,3 +61,51 @@ This password manager implements a **true zero-knowledge architecture** [web:19]
 2. **All Encryption Happens Client-Side** - Passwords are encrypted in your browser before transmission
 3. **Server Stores Only Ciphertext** - The backend never sees plaintext passwords
 4. **You Control the Keys** - Only you can decrypt your data
+
+
+### Architecture Diagram
+
+┌─────────────────────────────────────────────────────────────────┐
+│ CLIENT (Browser) │
+│ │
+│ ┌──────────────┐ ┌──────────────────┐ ┌────────────────┐ │
+│ │ Master │──▶│ PBKDF2 (100k) │──▶│ AES-256 Key │ │
+│ │ Password │ │ Key Derivation │ │ (Memory Only) │ │
+│ └──────────────┘ └──────────────────┘ └────────┬───────┘ │
+│ │ │
+│ ┌──────────────┐ ┌──────────────────┐ ┌────────▼───────┐ │
+│ │ Plaintext │──▶│ AES-256-GCM │──▶│ Ciphertext + │ │
+│ │ Password │ │ Encryption │ │ IV │ │
+│ └──────────────┘ └──────────────────┘ └────────┬───────┘ │
+│ │ │
+└────────────────────────────────────────────────────────┼─────────┘
+│
+│ HTTPS
+▼
+┌─────────────────────────────────────────────────────────────────┐
+│ SERVER (Django API) │
+│ │
+│ ┌──────────────┐ ┌──────────────────┐ ┌────────────────┐ │
+│ │ Username + │──▶│ Argon2id Hash │──▶│ Database │ │
+│ │ Master Pwd │ │ (Authentication) │ │ (Users) │ │
+│ └──────────────┘ └──────────────────┘ └────────────────┘ │
+│ │
+│ ┌──────────────┐ ┌────────────────┐ │
+│ │ Ciphertext + │──────────────────────────▶│ Database │ │
+│ │ IV + Meta │ (Stored Encrypted) │ (Passwords) │ │
+│ └──────────────┘ └────────────────┘ │
+│ │
+│ ❌ Server CANNOT decrypt - Missing encryption key! │
+└─────────────────────────────────────────────────────────────────┘
+text
+
+
+### Security Model
+
+| Component | Purpose | Location |
+|-----------|---------|----------|
+| Master Password | User authentication + key derivation | Client only (never sent) |
+| Argon2 Hash | Server-side authentication | Server database |
+| Encryption Key | Decrypt/encrypt passwords | Client memory (never sent) |
+| Ciphertext + IV | Encrypted password storage | Server database |
+| Salt | Key derivation randomness | Client localStorage |
