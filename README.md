@@ -65,7 +65,11 @@ This password manager implements a **true zero-knowledge architecture** [web:19]
 
 ### Architecture Diagram
 
-
+<p align="center">
+  <img src="assests/passmanager.png" alt="pass tracker" width="800">
+  <br>
+  
+</p>
 
 
 ### Security Model
