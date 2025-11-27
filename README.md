@@ -50,3 +50,14 @@ Zero-knowledge password manager where **the server never sees your decrypted pas
 - **Key Derivation:** PBKDF2 (100,000 iterations, SHA-256)
 - **Password Hashing:** Argon2id
 - **IV Generation:** Cryptographically secure random values
+
+##  System Architecture Overview
+
+### Zero-Knowledge Flow
+
+This password manager implements a **true zero-knowledge architecture** [web:19][web:181], meaning:
+
+1. **Master Password Never Leaves Your Device** - It's used only for local key derivation
+2. **All Encryption Happens Client-Side** - Passwords are encrypted in your browser before transmission
+3. **Server Stores Only Ciphertext** - The backend never sees plaintext passwords
+4. **You Control the Keys** - Only you can decrypt your data
