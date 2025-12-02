@@ -81,3 +81,32 @@ This password manager implements a **true zero-knowledge architecture** [web:19]
 | Encryption Key | Decrypt/encrypt passwords | Client memory (never sent) |
 | Ciphertext + IV | Encrypted password storage | Server database |
 | Salt | Key derivation randomness | Client localStorage |
+
+
+
+
+##  Roadmap
+
+###  Core Features 
+- [x] Zero-knowledge encryption architecture
+- [x] User registration and authentication
+- [x] Password CRUD operations
+- [x] Search and filtering
+- [x] Folder organization
+- [x] Favorites functionality
+- [ ] Auto-lock mechanism
+
+###  Enhanced Security ( In Progress)
+- [ ] Two-factor authentication (TOTP)
+- [ ] Password strength meter
+- [ ] Compromised password detection (Have I Been Pwned API)
+- [ ] Security audit logging
+- [ ] Password generation with customizable rules
+- [ ] Biometric authentication (WebAuthn)
+
+### User Experience ( Planned)
+- [ ] Dark mode
+- [ ] Password sharing (encrypted end-to-end)
+- [ ] Browser extension (Chrome/Firefox)
+- [ ] Import from other password managers
+- [ ] Export to encrypted backup
