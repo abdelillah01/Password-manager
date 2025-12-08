@@ -83,7 +83,106 @@ This password manager implements a **true zero-knowledge architecture** [web:19]
 | Salt | Key derivation randomness | Client localStorage |
 
 
+### Threat Model Mitigations
 
+- ✅ **Database Breach** - Attacker gets only encrypted data (useless without master password)
+- ✅ **Man-in-the-Middle** - HTTPS ensures encrypted channel; no plaintext transmitted
+- ✅ **Server Compromise** - Server has no decryption keys; cannot read passwords
+- ✅ **Brute Force** - Rate limiting + Argon2 computational cost
+- ✅ **Replay Attacks** - CSRF protection + session management
+- ✅ **Password Reuse** - Each password encrypted with unique IV
+
+
+### 6. Threat Mitigation Summary
+
+| Threat | Mitigation | Status |
+|--------|------------|--------|
+| **Database Breach** | All passwords encrypted with user-specific keys | [x] Mitigated |
+| **MITM Attack** | HTTPS + No plaintext transmission | [x] Mitigated |
+| **Server Compromise** | Zero-knowledge: server can't decrypt | [x] Mitigated |
+| **Brute Force (Login)** | Rate limiting + Argon2 cost | [x] Mitigated |
+| **Brute Force (Encryption)** | AES-256 (2^256 keyspace) | [x] Mitigated |
+| **Rainbow Tables** | Random salts per user | [x] Mitigated |
+| **Replay Attack** | CSRF tokens + session management | [x] Mitigated |
+| **XSS** | Content Security Policy + HTTPOnly cookies | ⚠️ Partial |
+| **Phishing** | User education required | ⚠️ User responsibility |
+
+### 7. Security Best Practices Implemented
+
+-  No master password storage
+-  No encryption keys in localStorage
+-  Auto-lock after inactivity
+-  HTTPS enforcement (production)
+-  CORS restrictions
+-  Rate limiting
+-  CSRF protection
+-  Input validation
+-  Parameterized queries (SQL injection prevention)
+-  Secure session cookies
+
+
+
+## 💡 Challenges & Difficulties Encountered
+
+### 1. **Circular Import Issues with Django Settings**
+
+**Problem:** When creating a custom `CsrfExemptSessionAuthentication` class directly in `views.py`, Django's settings attempted to import the module before REST Framework was fully initialized, causing circular dependency errors.
+
+**Solution:** Moved the authentication class to a separate `authentication.py` file to break the circular dependency chain. This taught me the importance of module separation and Django's initialization order.
+
+### 2. **CORS Configuration Complexity**
+
+**Problem:** Frontend requests were blocked with "CORS Missing Allow Origin" errors despite having `django-cors-headers` installed.
+
+**Solution:** Required careful ordering of middleware (CorsMiddleware must come before CommonMiddleware) and explicit configuration of `CORS_ALLOWED_ORIGINS`, `CORS_ALLOW_CREDENTIALS`, and `CSRF_TRUSTED_ORIGINS`. Testing with different browsers helped identify the exact headers needed.
+
+### 3. **Web Crypto API Limitations**
+
+**Problem:** Web Crypto API operations are asynchronous and promise-based, making state management complex, especially during rapid encrypt/decrypt operations.
+
+**Solution:** Implemented proper async/await patterns and cached the derived encryption key in Zustand state. This avoided re-deriving keys on every operation while maintaining security.
+
+### 4. **Salt Storage Strategy**
+
+**Problem:** Deciding where to store the user's salt for key derivation without compromising security. Options were: server-side, localStorage, or derived from username.
+
+**Solution:** Stored salt in localStorage (per-user), generated during registration. This balances security (random, user-specific) with practicality (persistent across sessions). Trade-off: If user clears browser data, they lose access unless they re-register.
+
+### 5. **PostgreSQL Migration Conflicts**
+
+**Problem:** During development, switching between PostgreSQL and SQLite caused migration conflicts where `auth_user` table wasn't created properly.
+
+**Solution:** Learned to properly reset migrations: delete migration files, drop/recreate database, then re-run migrations from scratch. SQLite proved simpler for local development.
+
+### 6. **Session vs JWT Authentication**
+
+**Problem:** Deciding between session-based auth (simpler, stateful) vs JWT (stateless, scalable) for the API.
+
+**Solution:** Chose session-based authentication with cookies for simplicity in a single-domain setup. For a microservices architecture, JWT would be preferred. Added CSRF exemption for API-only endpoints.
+
+### 7. **Next.js 14 App Router Learning Curve**
+
+**Problem:** Next.js 14's App Router has different patterns than Pages Router (e.g., `'use client'` directive, server components default).
+
+**Solution:** Extensively read the documentation and ensured all interactive components were properly marked as client components. The `useRouter` from `next/navigation` (not `next/router`) was a key difference.
+
+### 8. **Zustand State Persistence**
+
+**Problem:** Storing the encryption key in Zustand state meant it was lost on page refresh, requiring re-login.
+
+**Solution:** This is intentional for security (key should never be persisted), but required user education about the auto-lock feature and the need to re-authenticate after browser refresh.
+
+### 9. **IV Storage and Management**
+
+**Problem:** Understanding that the IV must be stored alongside ciphertext but doesn't need to be secret (only unique).
+
+**Solution:** Researched GCM mode specifications and learned IVs can be stored in plaintext. Implemented Base64 encoding for clean transmission and storage.
+
+### 10. **Argon2 Installation on Windows**
+
+**Problem:** `argon2-cffi` has binary dependencies that sometimes fail to compile on Windows.
+
+**Solution:** Used pre-built wheels from PyPI and ensured Visual C++ Build Tools were installed. Documented this requirement for Windows users.
 
 ##  Roadmap
 
