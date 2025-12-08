@@ -104,9 +104,3 @@ This password manager implements a **true zero-knowledge architecture** [web:19]
 - [ ] Password generation with customizable rules
 - [ ] Biometric authentication (WebAuthn)
 
-### User Experience ( Planned)
-- [ ] Dark mode
-- [ ] Password sharing (encrypted end-to-end)
-- [ ] Browser extension (Chrome/Firefox)
-- [ ] Import from other password managers
-- [ ] Export to encrypted backup
