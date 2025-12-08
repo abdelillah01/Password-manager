@@ -5,7 +5,6 @@ import axios from 'axios';
 import { useAuthStore, usePasswordStore } from '@/lib/store';
 import PasswordList from '@/components/PasswordList';
 import PasswordModal from '@/components/PasswordModal';
-import { Shield, Plus, Search, LogOut, Star, Filter, User } from 'lucide-react';
 
 axios.defaults.withCredentials = true;
 
@@ -85,6 +84,44 @@ export default function Dashboard() {
 
   const totalPasswords = passwords.length;
   const favoriteCount = passwords.filter(p => p.favorite).length;
+  const strongPasswordCount = passwords.filter(p => p.strength === 'strong').length;
+
+  // Simple SVG Icons as components
+  const ShieldIcon = () => (
+    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+    </svg>
+  );
+
+  const SearchIcon = () => (
+    <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+    </svg>
+  );
+
+  const UserIcon = () => (
+    <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+    </svg>
+  );
+
+  const LogoutIcon = () => (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+    </svg>
+  );
+
+  const PlusIcon = () => (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+    </svg>
+  );
+
+  const StarIcon = () => (
+    <svg className="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+    </svg>
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 p-4 md:p-8">
@@ -94,7 +131,7 @@ export default function Dashboard() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl shadow-lg">
-                <Shield className="w-8 h-8 text-white" />
+                <ShieldIcon />
               </div>
               <div>
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 dark:from-blue-400 dark:to-blue-600 bg-clip-text text-transparent">
@@ -108,14 +145,14 @@ export default function Dashboard() {
             
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                <User className="w-5 h-5" />
+                <UserIcon />
                 <span className="font-medium">{user?.email}</span>
               </div>
               <button
                 onClick={handleLogout}
                 className="btn-danger flex items-center gap-2"
               >
-                <LogOut className="w-4 h-4" />
+                <LogoutIcon />
                 Logout
               </button>
             </div>
@@ -142,7 +179,7 @@ export default function Dashboard() {
           </div>
           <div className="card p-6 text-center">
             <div className="text-3xl font-bold text-green-500 dark:text-green-400 mb-2">
-              {passwords.filter(p => p.strength === 'strong').length}
+              {strongPasswordCount}
             </div>
             <div className="text-slate-600 dark:text-slate-400 text-sm">
               Strong Passwords
@@ -155,7 +192,9 @@ export default function Dashboard() {
           <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
             <div className="flex-1 w-full">
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+                <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                  <SearchIcon />
+                </div>
                 <input
                   type="text"
                   placeholder="Search passwords, websites, or usernames..."
@@ -175,7 +214,7 @@ export default function Dashboard() {
                   onChange={(e) => setFilter({ ...filter, favorite: e.target.checked })}
                   className="rounded text-blue-500 focus:ring-blue-500"
                 />
-                <Star className="w-4 h-4 text-amber-500" />
+                <StarIcon />
                 <span className="text-sm font-medium">Favorites</span>
               </label>
               
@@ -184,7 +223,7 @@ export default function Dashboard() {
                 disabled={isLoading}
                 className="btn-secondary flex items-center gap-2 disabled:opacity-50"
               >
-                <Search className="w-4 h-4" />
+                <SearchIcon />
                 {isLoading ? 'Searching...' : 'Search'}
               </button>
               
@@ -192,7 +231,7 @@ export default function Dashboard() {
                 onClick={() => setShowModal(true)}
                 className="btn-primary flex items-center gap-2"
               >
-                <Plus className="w-5 h-5" />
+                <PlusIcon />
                 New Password
               </button>
             </div>
