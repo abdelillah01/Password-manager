@@ -85,12 +85,12 @@ This password manager implements a **true zero-knowledge architecture** [web:19]
 
 ### Threat Model Mitigations
 
-- ✅ **Database Breach** - Attacker gets only encrypted data (useless without master password)
-- ✅ **Man-in-the-Middle** - HTTPS ensures encrypted channel; no plaintext transmitted
-- ✅ **Server Compromise** - Server has no decryption keys; cannot read passwords
-- ✅ **Brute Force** - Rate limiting + Argon2 computational cost
-- ✅ **Replay Attacks** - CSRF protection + session management
-- ✅ **Password Reuse** - Each password encrypted with unique IV
+- [x] **Database Breach** - Attacker gets only encrypted data (useless without master password)
+- [x] **Man-in-the-Middle** - HTTPS ensures encrypted channel; no plaintext transmitted
+- [x] **Server Compromise** - Server has no decryption keys; cannot read passwords
+- [x] **Brute Force** - Rate limiting + Argon2 computational cost
+- [x] **Replay Attacks** - CSRF protection + session management
+- [x] **Password Reuse** - Each password encrypted with unique IV
 
 
 ### 6. Threat Mitigation Summary
@@ -104,8 +104,8 @@ This password manager implements a **true zero-knowledge architecture** [web:19]
 | **Brute Force (Encryption)** | AES-256 (2^256 keyspace) | [x] Mitigated |
 | **Rainbow Tables** | Random salts per user | [x] Mitigated |
 | **Replay Attack** | CSRF tokens + session management | [x] Mitigated |
-| **XSS** | Content Security Policy + HTTPOnly cookies | ⚠️ Partial |
-| **Phishing** | User education required | ⚠️ User responsibility |
+| **XSS** | Content Security Policy + HTTPOnly cookies |  Partial |
+| **Phishing** | User education required |  User responsibility |
 
 ### 7. Security Best Practices Implemented
 
@@ -122,7 +122,7 @@ This password manager implements a **true zero-knowledge architecture** [web:19]
 
 
 
-## 💡 Challenges & Difficulties Encountered
+##  Challenges & Difficulties Encountered
 
 ### 1. **Circular Import Issues with Django Settings**
 
