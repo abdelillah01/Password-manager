@@ -11,7 +11,9 @@ Zero-knowledge password manager where **the server never sees your decrypted pas
 <p align="center">
   <img src="assets/pass21.png" alt="pass tracker" width="800">
   <br>
-  
+  <p align="center">
+  <img src="assets/pass22.png" alt="pass tracker" width="800">
+  <br>
 </p>
 ---
 
