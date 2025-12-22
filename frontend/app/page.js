@@ -122,7 +122,7 @@ export default function Home() {
               <ShieldIcon />
             </div>
             <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 dark:from-blue-400 dark:to-blue-600 bg-clip-text text-transparent">
-              VaultGuard
+              CipherVault
             </span>
           </div>
           <div className="flex gap-4">
@@ -141,19 +141,36 @@ export default function Home() {
           </div>
         </div>
       </nav>
-
+{/* Zero-Knowledge Explanation Banner - Alternative Design */}
+<div className="bg-blue-600 text-white py-4 border-b-4 border-blue-400">
+  <div className="container mx-auto px-6">
+    <div className="flex items-center justify-center gap-3">
+      <div className="flex-shrink-0">
+        <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+        </svg>
+      </div>
+      <div className="text-center">
+        <span className="font-semibold">Zero-Knowledge Architecture: </span>
+        <span className="opacity-90">
+          Your data is encrypted locally before syncing. We never see your passwords or encryption keys.
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
       {/* Hero Section */}
       <section className="container mx-auto px-6 py-20 text-center">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-5xl md:text-6xl font-bold text-slate-900 dark:text-slate-100 mb-6 leading-tight">
             Secure Your Digital Life with{' '}
             <span className="bg-gradient-to-r from-blue-600 to-blue-800 dark:from-blue-400 dark:to-blue-600 bg-clip-text text-transparent">
-              Absolute Confidentiality
+              Zero-Knowledge
             </span>{' '}
             Encryption
           </h1>
           <p className="text-xl text-slate-600 dark:text-slate-400 mb-12 max-w-2xl mx-auto leading-relaxed">
-            VaultGuard protects your passwords with military-grade encryption that never leaves your device. 
+            CipherVault protects your passwords with military-grade encryption that never leaves your device. 
             Your data, your control - we never see what you store.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -173,7 +190,35 @@ export default function Home() {
         </div>
       </section>
 
-      
+      {/* Features Section */}
+      <section className="container mx-auto px-6 py-20">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4">
+            Why Choose CipherVault?
+          </h2>
+          <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+            Built with security and privacy as our foundation
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <FeatureCard
+            icon={LockIcon}
+            title="Zero-Knowledge Architecture"
+            description="Your master password and encrypted data never leave your device. We literally cannot access your passwords."
+          />
+          <FeatureCard
+            icon={KeyIcon}
+            title="Client-Side Encryption"
+            description="All encryption and decryption happens locally in your browser. Your data is encrypted before it reaches our servers."
+          />
+          <FeatureCard
+            icon={EyeIcon}
+            title="Complete Privacy"
+            description="We don't track you, we don't sell your data, and we don't have access to your encrypted information."
+          />
+        </div>
+      </section>
 
       {/* Technical Deep Dive Section */}
       <section className="bg-white dark:bg-slate-800 py-20">
@@ -184,7 +229,7 @@ export default function Home() {
                 How It Works: Technical Deep Dive
               </h2>
               <p className="text-lg text-slate-600 dark:text-slate-400">
-                Understanding the security behind VaultGuard
+                Understanding the security behind CipherVault
               </p>
             </div>
 
@@ -282,7 +327,7 @@ export default function Home() {
               Military-Grade Security
             </h2>
             <p className="text-lg text-slate-600 dark:text-slate-400 mb-8">
-              VaultGuard uses industry-standard AES-256-GCM encryption to protect your passwords. 
+              CipherVault uses industry-standard AES-256-GCM encryption to protect your passwords. 
               Combined with PBKDF2 key derivation, your data remains secure even if our servers are compromised.
             </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
@@ -314,7 +359,7 @@ export default function Home() {
             Ready to Take Control of Your Security?
           </h2>
           <p className="text-lg text-slate-600 dark:text-slate-400 mb-8">
-            Join thousands of users who trust VaultGuard with their most sensitive information.
+            Join thousands of users who trust CipherVault with their most sensitive information.
           </p>
           <a
             href="/register"
@@ -336,11 +381,11 @@ export default function Home() {
               <ShieldIcon />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 dark:from-blue-400 dark:to-blue-600 bg-clip-text text-transparent">
-              VaultGuard
+              CipherVault
             </span>
           </div>
           <p className="text-slate-600 dark:text-slate-400 text-sm">
-            © 2025 VaultGuard. Your privacy, our priority.
+            © 2025 CipherVault. Your privacy, our priority.
           </p>
         </div>
       </footer>

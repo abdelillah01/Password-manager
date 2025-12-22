@@ -135,7 +135,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 dark:from-blue-400 dark:to-blue-600 bg-clip-text text-transparent">
-                  VaultGuard
+                  CipherVault
                 </h1>
                 <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">
                   Zero-Knowledge Password Manager
