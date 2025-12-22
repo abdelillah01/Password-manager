@@ -9,10 +9,10 @@
 Zero-knowledge password manager where **the server never sees your decrypted passwords**. Built with modern web technologies and cryptographic best practices, this application ensures your sensitive data remains private through client-side encryption.
 
 <p align="center">
-  <img src="assets/pass21.png" alt="pass tracker" width="800">
+  <img src="assets/Homepage.png" alt="pass tracker" width="800">
   <br>
   <p align="center">
-  <img src="assets/pass22.png" alt="pass tracker" width="800">
+  <img src="assets/Dashboard.png" alt="pass tracker" width="800">
   <br>
 </p>
 ---
